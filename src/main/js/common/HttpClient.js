@@ -246,7 +246,7 @@ HttpClient._DEFAULT_REQUEST = {
 // rate limit requests per host
 HttpClient._PROMISE_THROTTLES = [];
 HttpClient._TASK_QUEUES = [];
-HttpClient._DEFAULT_TIMEOUT = 30000;
+HttpClient._DEFAULT_TIMEOUT = 300000;
 HttpClient._MAX_TIMEOUT = 2147483647;
 
 module.exports = HttpClient;
