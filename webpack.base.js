@@ -61,6 +61,7 @@ let configBase = {
         url: require.resolve('url'),
         util: require.resolve('util'),
         //vm: require.resolve('vm-browserify'),
+        vm: false,
         zlib: require.resolve('browserify-zlib')
       }
     },
