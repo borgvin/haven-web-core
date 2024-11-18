@@ -512,6 +512,15 @@ void monero_wasm_bridge::get_max_destination_amount(int handle, const string& so
   }
 }
 
+string monero_wasm_bridge::get_unaudited_balance(int handle, bool locked_only) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  rapidjson::Document doc;
+  doc.SetObject();
+
+  doc.AddMember("balance", monero_utils::to_rapidjson_val(doc.GetAllocator(), wallet->get_unaudited_balance(locked_only)), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
 
 string monero_wasm_bridge::get_balance_wallet(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
@@ -524,7 +533,7 @@ string monero_wasm_bridge::get_balance_wallet(int handle) {
   return monero_utils::serialize(doc);
 }
 //TODO is implementation needed assets mapped on subaddresses for account ??? 
- string monero_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
+string monero_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
   monero_wallet* wallet = (monero_wallet*) handle;
 
   // serialize wallet balance to json string {"balance": ...}

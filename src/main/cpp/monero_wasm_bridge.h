@@ -81,6 +81,7 @@ namespace monero_wasm_bridge
   void get_block_cap(int handle, emscripten::val callback);
   void get_collateral_requirements(int handle, const string& source_asset_type, const string& destination_asset_type, const string& str_amount,  emscripten::val callback);
   void get_max_destination_amount(int handle, const string& source_asset_type, const string& destination_asset_type,  emscripten::val callback);
+  string get_unaudited_balance(int handle, bool locked_only);
   string get_balance_wallet(int handle);
   string get_balance_account(int handle, const uint32_t account_idx);
   string get_balance_account_asset(int handle, const string& asset_type, const uint32_t account_idx);

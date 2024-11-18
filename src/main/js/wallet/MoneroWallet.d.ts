@@ -277,6 +277,7 @@ declare class MoneroWallet {
      *
      * @return {int[]} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
      */
+    getUnauditedBalance(locked_only: boolean): HavenBalance;
     getNumBlocksToUnlock(): int[];
     /**
      * Get accounts with a given tag.

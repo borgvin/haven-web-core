@@ -636,6 +636,10 @@ self.getUnlockedBalance = async function(walletId, accountIdx, subaddressIdx, as
   return (await self.WORKER_OBJECTS[walletId].getUnlockedBalance(accountIdx, subaddressIdx, assetType)).toJson();
 }
 
+self.getUnauditedBalance = async function(walletId, locked_only) {
+  return (await self.WORKER_OBJECTS[walletId].getUnauditedBalance(locked_only)).toJson();
+}
+
 self.getAccounts = async function(walletId, includeSubaddresses, tag) {
   let accountJsons = [];
   for (let account of await self.WORKER_OBJECTS[walletId].getAccounts(includeSubaddresses, tag)) accountJsons.push(account.toJson());

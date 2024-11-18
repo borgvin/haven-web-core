@@ -382,6 +382,10 @@ class MoneroWallet {
     throw new MoneroError("Not supported");
   }
   
+  async getUnauditedBalance(locked_only) {
+    throw new MoneroError("Not supported");
+  }
+
   /**
    * Get the number of blocks until the next and last funds unlock.
    * 

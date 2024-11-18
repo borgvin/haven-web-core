@@ -860,6 +860,18 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
 
+  async getUnauditedBalance(locked_only) {
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      // get balance encoded in json string
+      let unauditedBalanceStr = that._module.get_unaudited_balance(that._cppAddress, locked_only);
+
+      // parse json string to BigInteger
+      return new HavenBalance(JSON.parse(GenUtils.stringifyBIs(unauditedBalanceStr)).balance);
+    });
+  }
+
   async getAccounts(includeSubaddresses, tag) {
     let that = this;
     return that._module.queueTask(async function() {
@@ -2294,6 +2306,11 @@ class MoneroWalletFullProxy extends MoneroWallet {
   async getUnlockedBalance(accountIdx, subaddressIdx, assetType) {
     let unlockedBalanceStr = await this._invokeWorker("getUnlockedBalance", Array.from(arguments));
     return new HavenBalance(unlockedBalanceStr);
+  }
+
+  async getUnauditedBalance(locked_only) {
+    let unauditedBalance = await this._invokeWorker("getUnauditedBalance", Array.from(arguments));
+    return new HavenBalance(unauditedBalance);
   }
 
   async getAccounts(includeSubaddresses, tag) {

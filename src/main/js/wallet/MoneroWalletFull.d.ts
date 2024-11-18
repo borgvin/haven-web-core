@@ -212,6 +212,7 @@ declare class MoneroWalletFull extends MoneroWalletKeys implements MoneroWallet 
     getCollateralRequirements(sourceAssetType: any, destinationAssetType: any, amount: any): Promise<any>;
     getBalance(accountIdx: any, subaddressIdx: any, assetType: any): Promise<any>;
     getUnlockedBalance(accountIdx: any, subaddressIdx: any, assetType: any): Promise<any>;
+    getUnauditedBalance(locked_only: any): Promise<any>;
     getAccounts(includeSubaddresses: any, tag: any): Promise<any>;
     getAccount(accountIdx: any, includeSubaddresses: any): Promise<any>;
     createAccount(label: any): Promise<any>;
