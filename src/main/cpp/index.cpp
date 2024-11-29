@@ -63,8 +63,9 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("get_block_cap", &monero_wasm_bridge::get_block_cap);
   emscripten::function("get_max_destination_amount", &monero_wasm_bridge::get_max_destination_amount);
   emscripten::function("get_collateral_requirements", &monero_wasm_bridge::get_collateral_requirements);
-  emscripten::function("get_unaudited_balance", &monero_wasm_bridge::get_unaudited_balance);
   emscripten::function("get_balance_wallet", &monero_wasm_bridge::get_balance_wallet);
+  emscripten::function("get_unaudited_balance", &monero_wasm_bridge::get_unaudited_balance);
+  emscripten::function("has_spendable_old_outputs", &monero_wasm_bridge::has_spendable_old_outputs);
   emscripten::function("get_balance_account", &monero_wasm_bridge::get_balance_account);
   emscripten::function("get_balance_subaddress", &monero_wasm_bridge::get_balance_subaddress);
   emscripten::function("get_unlocked_balance_wallet", &monero_wasm_bridge::get_unlocked_balance_wallet);
@@ -87,6 +88,7 @@ EMSCRIPTEN_BINDINGS(module)
   emscripten::function("thaw_output", &monero_wasm_bridge::thaw_output);
   emscripten::function("is_output_frozen", &monero_wasm_bridge::is_output_frozen);
   emscripten::function("create_txs", &monero_wasm_bridge::create_txs);
+  emscripten::function("create_audit_txs", &monero_wasm_bridge::create_audit_txs);
   emscripten::function("sweep_output", &monero_wasm_bridge::sweep_output);
   emscripten::function("sweep_unlocked", &monero_wasm_bridge::sweep_unlocked);
   emscripten::function("sweep_dust", &monero_wasm_bridge::sweep_dust);

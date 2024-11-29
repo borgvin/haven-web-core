@@ -369,6 +369,25 @@ class MoneroWallet {
   async getBalance(accountIdx, subaddressIdx, assetType) {
     throw new MoneroError("Not supported");
   }
+
+  /**
+   * Get the balances of the wallet that have not yet been audited.
+   * 
+   * @param {boolean} unlocked_only - return only unlocked balances
+   * @return {HavenBalance} the balance of the wallet
+   */
+  async getUnauditedBalance(unlocked_only) {
+    throw new MoneroError("Not supported");
+  }
+
+  /**
+   * Check if the wallet contains balances that require auditing.
+   * 
+   * @return {HavenBalance} true if the wallet contains spendable unaudited outputs, else false
+   */
+  async hasSpendableOldOutputs() {
+    throw new MoneroError("Not supported");
+  }
   
   /**
    * Get the unlocked balance of the wallet, account, or subaddress.
@@ -379,10 +398,6 @@ class MoneroWallet {
    * @return {HavenBalance} the unlocked balance of the wallet, account, or subaddress
    */
   async getUnlockedBalance(accountIdx, subaddressIdx, assetType) {
-    throw new MoneroError("Not supported");
-  }
-  
-  async getUnauditedBalance(locked_only) {
     throw new MoneroError("Not supported");
   }
 
@@ -752,6 +767,10 @@ class MoneroWallet {
    * @return {MoneroTxWallet[]} the created transactions
    */
   async createTxs(config) {
+    throw new MoneroError("Not supported");
+  }
+
+  async createAuditTxs(address, keep_subaddress, priority, relay) {
     throw new MoneroError("Not supported");
   }
   

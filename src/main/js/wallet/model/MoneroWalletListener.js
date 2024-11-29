@@ -28,7 +28,7 @@ class MoneroWalletListener {
    * @param {BigInteger} newUnlockedBalance - new unlocked wallet balance
    * @param {string} assetType - new unlocked wallet balance
    */
-  onBalancesChanged(newBalance, newUnlockedBalance, assetType) { }
+  onBalancesChanged(newBalance, newUnlockedBalance, newUnauditedBalance, newUnlockedUnauditedBalance, assetType) { }
 
   /**
    * Invoked 3 times per received output: once when unconfirmed, once when confirmed, and

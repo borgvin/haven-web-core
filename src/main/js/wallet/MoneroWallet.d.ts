@@ -272,12 +272,25 @@ declare class MoneroWallet {
      * @return {HavenBalance} the unlocked balance of the wallet, account, or subaddress
      */
     getUnlockedBalance(accountIdx: int, subaddressIdx: int, assetType: string): HavenBalance;
+
+    /**
+     * Get the balances of the wallet that have not yet been audited.
+     * 
+     * @param {boolean} unlocked_only - return only unlocked balances
+     * @return {HavenBalance} the balance of the wallet
+     */
+    getUnauditedBalance(unlocked_only: boolean): HavenBalance;
+    /**
+     * Check if the wallet contains balances that require auditing.
+     * 
+     * @return {HavenBalance} true if the wallet contains spendable unaudited outputs, else false
+     */
+    hasSpendableOldOutputs(): boolean;
     /**
      * Get the number of blocks until the next and last funds unlock.
      *
      * @return {int[]} the number of blocks until the next and last funds unlock in elements 0 and 1, respectively, or undefined if no balance
      */
-    getUnauditedBalance(locked_only: boolean): HavenBalance;
     getNumBlocksToUnlock(): int[];
     /**
      * Get accounts with a given tag.
@@ -526,6 +539,7 @@ declare class MoneroWallet {
      * @return {MoneroTxWallet[]} the created transactions
      */
     createTxs(config: MoneroTxConfig | object): MoneroTxWallet[];
+    createAuditTxs(address: string, keep_subaddress: boolean, priority: number, relay: boolean): MoneroTxWallet[];
     /**
      * Sweep an output by key image.
      *
