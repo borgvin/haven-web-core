@@ -50,8 +50,8 @@ struct wallet_wasm_listener : public monero_wallet_listener {
     m_on_new_block((long) height);
   }
 
-  void on_balances_changed(uint64_t new_balance, uint64_t new_unlocked_balance, const string& asset_type) override {
-    m_on_balances_changed(to_string(new_balance), to_string(new_unlocked_balance), asset_type);
+  void on_balances_changed(uint64_t new_balance, uint64_t new_unlocked_balance, uint64_t new_unaudited_balance, uint64_t new_unlocked_unaudited_balance,const string& asset_type) override {
+    m_on_balances_changed(to_string(new_balance), to_string(new_unlocked_balance), to_string(new_unaudited_balance), to_string(new_unlocked_unaudited_balance), asset_type);
   }
 
   void on_output_received(const monero_output_wallet& output) override {
@@ -512,7 +512,6 @@ void monero_wasm_bridge::get_max_destination_amount(int handle, const string& so
   }
 }
 
-
 string monero_wasm_bridge::get_balance_wallet(int handle) {
   monero_wallet* wallet = (monero_wallet*) handle;
 
@@ -523,8 +522,24 @@ string monero_wasm_bridge::get_balance_wallet(int handle) {
   doc.AddMember("balance", monero_utils::to_rapidjson_val(doc.GetAllocator(), wallet->get_balance()), doc.GetAllocator());
   return monero_utils::serialize(doc);
 }
+
+string monero_wasm_bridge::get_unaudited_balance(int handle, bool unlocked_only) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+
+  rapidjson::Document doc;
+  doc.SetObject();
+
+  doc.AddMember("balance", monero_utils::to_rapidjson_val(doc.GetAllocator(), wallet->get_unaudited_balance(unlocked_only)), doc.GetAllocator());
+  return monero_utils::serialize(doc);
+}
+
+bool monero_wasm_bridge::has_spendable_old_outputs(int handle) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  return wallet->has_spendable_old_outputs();
+}
+
 //TODO is implementation needed assets mapped on subaddresses for account ??? 
- string monero_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
+string monero_wasm_bridge::get_balance_account(int handle, const uint32_t account_idx) {
   monero_wallet* wallet = (monero_wallet*) handle;
 
   // serialize wallet balance to json string {"balance": ...}
@@ -873,6 +888,20 @@ void monero_wasm_bridge::create_txs(int handle, const string& config_json, emscr
 
     // create txs
     vector<shared_ptr<monero_tx_wallet>> txs = wallet->create_txs(*config);
+
+    // serialize and return tx set
+    callback(txs[0]->m_tx_set.get()->serialize());
+  } catch (exception& e) {
+    callback(string(e.what()));
+  }
+}
+
+void monero_wasm_bridge::create_audit_txs(int handle, const std::string address, bool keep_subaddress, uint32_t priority, bool relay, emscripten::val callback) {
+  monero_wallet* wallet = (monero_wallet*) handle;
+  try {
+
+    // create txs
+    vector<shared_ptr<monero_tx_wallet>> txs = wallet->create_txs_audit(address, keep_subaddress, priority, relay);
 
     // serialize and return tx set
     callback(txs[0]->m_tx_set.get()->serialize());

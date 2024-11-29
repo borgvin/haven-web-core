@@ -82,6 +82,8 @@ namespace monero_wasm_bridge
   void get_collateral_requirements(int handle, const string& source_asset_type, const string& destination_asset_type, const string& str_amount,  emscripten::val callback);
   void get_max_destination_amount(int handle, const string& source_asset_type, const string& destination_asset_type,  emscripten::val callback);
   string get_balance_wallet(int handle);
+  string get_unaudited_balance(int handle, bool unlocked_only);
+  bool has_spendable_old_outputs(int handle);
   string get_balance_account(int handle, const uint32_t account_idx);
   string get_balance_account_asset(int handle, const string& asset_type, const uint32_t account_idx);
   string get_balance_subaddress(int handle, const string& asset_type, const uint32_t account_idx, const uint32_t subaddress_idx);
@@ -106,6 +108,7 @@ namespace monero_wasm_bridge
   void thaw_output(int handle, const string& key_image, emscripten::val callback);
   void is_output_frozen(int handle, const string& key_image, emscripten::val callback);
   void create_txs(int handle, const string& config_json, emscripten::val callback);
+  void create_audit_txs(int handle, const std::string address, bool keep_subaddress, uint32_t priority, bool relay, emscripten::val callback);
   void sweep_output(int handle, const string& config_json, emscripten::val callback);
   void sweep_unlocked(int handle, const string& config_json, emscripten::val callback);
   void sweep_dust(int handle, bool relay, emscripten::val callback);

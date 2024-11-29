@@ -860,6 +860,27 @@ class MoneroWalletFull extends MoneroWalletKeys {
     });
   }
 
+  async getUnauditedBalance(unlocked_only) {
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      // get balance encoded in json string
+      let unauditedBalanceStr = that._module.get_unaudited_balance(that._cppAddress, unlocked_only);
+      
+      // parse json string to BigInteger
+      return new HavenBalance(JSON.parse(GenUtils.stringifyBIs(unauditedBalanceStr)).balance);
+    });
+  }
+
+  async hasSpendableOldOutputs() {
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      let needs_audit = that._module.has_spendable_old_outputs(that._cppAddress);
+      return needs_audit;
+    });
+  }
+
   async getAccounts(includeSubaddresses, tag) {
     let that = this;
     return that._module.queueTask(async function() {
@@ -1133,6 +1154,27 @@ class MoneroWalletFull extends MoneroWalletKeys {
 
         // create txs in wasm and invoke callback when done
         that._module.create_txs(that._cppAddress, JSON.stringify(config.toJson()), callbackFn);
+      });
+    });
+  }
+
+  async createAuditTxs(address, keep_subaddress, priority, relay) {
+    this._assertNotClosed();
+
+    // return promise which resolves on callback
+    let that = this;
+    return that._module.queueTask(async function() {
+      that._assertNotClosed();
+      return new Promise(function(resolve, reject) {
+
+        // define callback for wasm
+        let callbackFn = function(txSetJsonStr) {
+          if (txSetJsonStr.charAt(0) !== '{') reject(new MoneroError(txSetJsonStr)); // json expected, else error
+          else resolve(new MoneroTxSet(JSON.parse(GenUtils.stringifyBIs(txSetJsonStr))).getTxs());
+        }
+
+        // create txs in wasm and invoke callback when done
+        that._module.create_audit_txs(that._cppAddress, address, keep_subaddress, priority, relay, callbackFn);
       });
     });
   }
@@ -1846,7 +1888,7 @@ class MoneroWalletFull extends MoneroWalletKeys {
             },
             isEnabled ? async function(height, startHeight, endHeight, percentDone, message) { await that._fullListener.onSyncProgress(height, startHeight, endHeight, percentDone, message); } : undefined,
             isEnabled ? async function(height) { await that._fullListener.onNewBlock(height); } : undefined,
-            isEnabled ? async function(newBalanceStr, newUnlockedBalanceStr, assetType) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, assetType); } : undefined,
+            isEnabled ? async function(newBalanceStr, newUnlockedBalanceStr, newUnauditedBalanceStr, newUnlockedUnauditedBalanceStr, assetType) { await that._fullListener.onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, newUnauditedBalanceStr, newUnlockedUnauditedBalanceStr, assetType); } : undefined,
             isEnabled ? async function(height, txHash, amountStr, assetType, accountIdx, subaddressIdx, version, unlockHeight, isLocked) { await that._fullListener.onOutputReceived(height, txHash, amountStr, assetType, accountIdx, subaddressIdx, version, unlockHeight, isLocked); } : undefined,
             isEnabled ? async function(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked) { await that._fullListener.onOutputSpent(height, txHash, amountStr, accountIdxStr, subaddressIdxStr, version, unlockHeight, isLocked); } : undefined,
         );
@@ -2296,6 +2338,16 @@ class MoneroWalletFullProxy extends MoneroWallet {
     return new HavenBalance(unlockedBalanceStr);
   }
 
+  async getUnauditedBalance(unlocked_only) {
+    let unauditedBalance = await this._invokeWorker("getUnauditedBalance", Array.from(arguments));
+    return new HavenBalance(unauditedBalance);
+  }
+
+  async hasSpendableOldOutputs() {
+    let needsAudit = await this._invokeWorker("hasSpendableOldOutputs", Array.from(arguments));
+    return needsAudit;
+  }
+
   async getAccounts(includeSubaddresses, tag) {
     let accounts = [];
     for (let accountJson of (await this._invokeWorker("getAccounts", Array.from(arguments)))) {
@@ -2384,6 +2436,11 @@ class MoneroWalletFullProxy extends MoneroWallet {
   async createTxs(config) {
     config = MoneroWallet._normalizeCreateTxsConfig(config);
     let txSetJson = await this._invokeWorker("createTxs", [config.toJson()]);
+    return new MoneroTxSet(txSetJson).getTxs();
+  }
+
+  async createAuditTxs(address, keep_subaddress, priority, relay) {
+    let txSetJson = await this._invokeWorker("createAuditTxs", Array.from(arguments));
     return new MoneroTxSet(txSetJson).getTxs();
   }
 
@@ -2636,8 +2693,8 @@ class WalletFullListener {
     for (let listener of this._wallet.getListeners()) await listener.onNewBlock(height);
   }
 
-  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, assetType) {
-    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr), assetType);
+  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, newUnauditedBalanceStr, newUnlockedUnauditedBalanceStr, assetType) {
+    for (let listener of this._wallet.getListeners()) await listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr), BigInteger.parse(newUnauditedBalanceStr), BigInteger.parse(newUnlockedUnauditedBalanceStr), assetType);
   }
 
   async onOutputReceived(height, txHash, amountStr, assetType, accountIdx, subaddressIdx, version, unlockHeight, isLocked) {
@@ -2731,8 +2788,8 @@ class WalletWorkerListener {
     await this._listener.onNewBlock(height);
   }
 
-  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, assetType) {
-    await this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr), assetType);
+  async onBalancesChanged(newBalanceStr, newUnlockedBalanceStr, newUnauditedBalanceStr, newUnlockedUnauditedBalanceStr, assetType) {
+    await this._listener.onBalancesChanged(BigInteger.parse(newBalanceStr), BigInteger.parse(newUnlockedBalanceStr), BigInteger.parse(newUnauditedBalanceStr), BigInteger.parse(newUnlockedUnauditedBalanceStr), assetType);
   }
 
   async onOutputReceived(blockJson) {

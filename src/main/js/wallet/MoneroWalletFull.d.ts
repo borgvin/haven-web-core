@@ -212,6 +212,8 @@ declare class MoneroWalletFull extends MoneroWalletKeys implements MoneroWallet 
     getCollateralRequirements(sourceAssetType: any, destinationAssetType: any, amount: any): Promise<any>;
     getBalance(accountIdx: any, subaddressIdx: any, assetType: any): Promise<any>;
     getUnlockedBalance(accountIdx: any, subaddressIdx: any, assetType: any): Promise<any>;
+    getUnauditedBalance(unlocked_only: any): Promise<any>;
+    hasSpendableOldOutputs(): Promise<any>;
     getAccounts(includeSubaddresses: any, tag: any): Promise<any>;
     getAccount(accountIdx: any, includeSubaddresses: any): Promise<any>;
     createAccount(label: any): Promise<any>;
@@ -229,6 +231,7 @@ declare class MoneroWalletFull extends MoneroWalletKeys implements MoneroWallet 
     thawOutput(keyImage: any): Promise<any>;
     isOutputFrozen(keyImage: any): Promise<any>;
     createTxs(config: any): Promise<any>;
+    createAuditTxs(address: any, keep_subaddress: any, priority: any, relay: any): Promise<any>;
     sweepOutput(config: any): Promise<any>;
     sweepUnlocked(config: any): Promise<any>;
     sweepDust(relay: any): Promise<any>;
@@ -314,7 +317,7 @@ declare class WalletFullListener {
     _wallet: any;
     onSyncProgress(height: any, startHeight: any, endHeight: any, percentDone: any, message: any): Promise<void>;
     onNewBlock(height: any): Promise<void>;
-    onBalancesChanged(newBalanceStr: any, newUnlockedBalanceStr: any, assetType: any): Promise<void>;
+    onBalancesChanged(newBalanceStr: any, newUnlockedBalanceStr: any, newUnauditedBalanceStr: any, newUnlockedUnauditedBalanceStr: any, assetType: any): Promise<void>;
     onOutputReceived(height: any, txHash: any, amountStr: any, assetType: any, accountIdx: any, subaddressIdx: any, version: any, unlockHeight: any, isLocked: any): Promise<void>;
     onOutputSpent(height: any, txHash: any, amountStr: any, assetType: any, accountIdxStr: any, subaddressIdxStr: any, version: any): Promise<void>;
 }

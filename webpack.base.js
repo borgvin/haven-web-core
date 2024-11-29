@@ -34,7 +34,7 @@ let configBase = {
       alias: {
         "fs": "html5-fs"
       },
-      extensions: ['.js', '.jsx', '.css', '.json', 'otf', 'ttf', 'eot', 'svg'],
+      extensions: ['.js', '.jsx', '.ts', '.tsx', '.css', '.json', '.otf', '.ttf', '.eot', '.svg'],
       modules: [
         'node_modules'
       ],
@@ -61,6 +61,7 @@ let configBase = {
         url: require.resolve('url'),
         util: require.resolve('util'),
         //vm: require.resolve('vm-browserify'),
+        vm: false,
         zlib: require.resolve('browserify-zlib')
       }
     },

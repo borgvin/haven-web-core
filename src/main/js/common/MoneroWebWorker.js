@@ -551,8 +551,8 @@ self.addListener = async function(walletId, listenerId) {
       this.worker.postMessage([this.walletId, "onNewBlock_" + this.getId(), height]);
     }
     
-    onBalancesChanged(newBalance, newUnlockedBalance, assetType) {
-      this.worker.postMessage([this.walletId, "onBalancesChanged_" + this.getId(), newBalance.toString(), newUnlockedBalance.toString(), assetType]);
+    onBalancesChanged(newBalance, newUnlockedBalance, newUnauditedBalance, newUnlockedUnauditedBalance, assetType) {
+      this.worker.postMessage([this.walletId, "onBalancesChanged_" + this.getId(), newBalance.toString(), newUnlockedBalance.toString(), newUnauditedBalance.toString(), newUnlockedUnauditedBalance.toString(), assetType]);
     }
 
     onOutputReceived(output) {
@@ -634,6 +634,14 @@ self.getBalance = async function(walletId, accountIdx, subaddressIdx, assetType)
 
 self.getUnlockedBalance = async function(walletId, accountIdx, subaddressIdx, assetType) {
   return (await self.WORKER_OBJECTS[walletId].getUnlockedBalance(accountIdx, subaddressIdx, assetType)).toJson();
+}
+
+self.getUnauditedBalance = async function(walletId, unlocked_only) {
+  return (await self.WORKER_OBJECTS[walletId].getUnauditedBalance(unlocked_only)).toJson();
+}
+
+self.hasSpendableOldOutputs = async function(walletId) {
+  return (await self.WORKER_OBJECTS[walletId].hasSpendableOldOutputs());
 }
 
 self.getAccounts = async function(walletId, includeSubaddresses, tag) {
@@ -789,6 +797,11 @@ self.isOutputFrozen = async function(walletId, keyImage) {
 self.createTxs = async function(walletId, config) {
   if (typeof config === "object") config = new MoneroTxConfig(config);
   let txs = await self.WORKER_OBJECTS[walletId].createTxs(config);
+  return txs[0].getTxSet().toJson();
+}
+
+self.createAuditTxs = async function(walletId, address, keep_subaddress, priority, relay) {
+  let txs = await self.WORKER_OBJECTS[walletId].createAuditTxs(address, keep_subaddress, priority, relay);
   return txs[0].getTxSet().toJson();
 }
 
